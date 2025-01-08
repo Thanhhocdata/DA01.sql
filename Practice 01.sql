@@ -23,3 +23,9 @@ SELECT NAME FROM Employee
 WHERE salary > 2000 AND months < 10
 ORDER BY Employee_id ASC
 EX9
+SELECT product_id FROM PRODUCTS
+WHERE low_fats ='Y' AND recyclable = 'Y'
+EX10
+SELECT NAME FROM Customer
+WHERE referee_id != 2 OR referee_id IS NULL
+EX11
