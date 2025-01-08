@@ -38,6 +38,9 @@ ORDER BY author_id
 EX13
 SELECT part,assembly_step FROM parts_assembly
 WHERE finish_date IS NULL
-EX14 Em dùng dấu =< và >= không được anh ạ
+EX14 
 select * from lyft_drivers
-WHERE yearly_salary < 30000 OR yearly_salary > 70000
+WHERE yearly_salary <= 30000 OR yearly_salary >= 70000
+EX15
+SELECT advertising_channel FROM uber_advertising
+Where year = 2019 AND money_spent > 100000
