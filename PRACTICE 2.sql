@@ -56,3 +56,7 @@ FROM Followers
 GROUP BY user_id
 ORDER BY user_id
 EX12
+SELECT class   
+FROM Courses
+GROUP BY class
+HAVING COUNT (student ) >= 5
