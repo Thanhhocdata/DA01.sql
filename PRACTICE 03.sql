@@ -45,3 +45,12 @@ FROM Activity
 WHERE  activity_date BETWEEN '2019-06-28' AND '2019-07-27'
 GROUP BY activity_date
 EX9
+SELECT first_name,
+POSITION ('a' IN first_name)
+FROM worker
+WHERE first_name = 'Amitah'
+EX10
+select title,
+SUBSTRING (title FROM POSITION('2' IN title) FOR 4) AS YEAR
+from winemag_p2
+WHERE country = 'Macedonia'
