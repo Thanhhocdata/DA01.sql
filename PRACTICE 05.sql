@@ -42,3 +42,12 @@ JOIN activities AS b
 ON a.user_id = b.user_id
 WHERE activity_type IN ('open','send')
 GROUP BY age_bucket
+EX4
+SELECT a.customer_id
+FROM customer_contracts AS a
+JOIN products AS b 
+ON a.product_id=b.product_id
+GROUP BY a.customer_id
+HAVING COUNT(DISTINCT b.product_category) =3
+ORDER BY a.customer_id
+EX5
