@@ -59,3 +59,19 @@ LEFT JOIN  Employees AS b
 ON a.reports_to =b.employee_id 
 WHERE a.reports_to IS NOT NULL 
 GROUP BY b.employee_id ,b.name
+EX6
+SELECT a.product_name,
+SUM(b.unit) AS unit   
+FROM Products AS a
+LEFT JOIN Orders AS b 
+ON a.product_id =b.product_id
+WHERE EXTRACT(MONTH FROM b.order_date) =2 AND EXTRACT(YEAR FROM b.order_date) = 2020
+GROUP BY a.product_name
+HAVING unit >=100
+EX7
+SELECT a.page_id
+FROM pages AS a 
+LEFT JOIN page_likes AS b 
+ON a.page_id=b.page_id
+WHERE b.user_id	IS NULL
+ORDER BY a.page_id
