@@ -51,3 +51,11 @@ GROUP BY a.customer_id
 HAVING COUNT(DISTINCT b.product_category) =3
 ORDER BY a.customer_id
 EX5
+SELECT b.employee_id ,b.name,
+COUNT(a.reports_to) AS reports_count,
+CEILING(AVG(a.age)) AS average_age
+FROM Employees AS a
+LEFT JOIN  Employees AS b
+ON a.reports_to =b.employee_id 
+WHERE a.reports_to IS NOT NULL 
+GROUP BY b.employee_id ,b.name
