@@ -82,3 +82,24 @@ WHEN state = 'approved' THEN amount ELSE 0
 END) AS approved_total_amount 
 FROM Transactions
 GROUP BY month,country
+EX7
+SELECT a.product_id, a.year AS first_year, a.quantity, price 
+FROM Sales AS a
+JOIN Product AS b 
+ON a.product_id =b.product_id 
+WHERE year = 
+(SELECT MIN(YEAR) 
+FROM Sales
+WHERE product_id = a.product_id
+GROUP BY product_id)
+EX8
+SELECT customer_id
+FROM Customer AS a
+JOIN Product AS b
+ON a.product_key =b.product_key 
+GROUP BY customer_id
+HAVING COUNT(DISTINCT(a.product_key)) = (SELECT count(product_key) FROM Product)
+EX9
+
+
+ 
