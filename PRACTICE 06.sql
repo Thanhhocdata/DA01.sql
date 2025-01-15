@@ -100,6 +100,78 @@ ON a.product_key =b.product_key
 GROUP BY customer_id
 HAVING COUNT(DISTINCT(a.product_key)) = (SELECT count(product_key) FROM Product)
 EX9
+SELECT a.employee_id 
+FROM Employees AS a
+LEFT JOIN Employees AS b 
+ON a.manager_id = b.employee_id  
+WHERE a.salary < 30000 AND a.manager_id IS NOT NULL AND b.employee_id  IS NULL
+ORDER BY employee_id 
+EX10 Bài này trung với EX1 hay sao í anh ạ
+WITH no_of_Dup_job AS
+(SELECT company_id,title,description,
+COUNT (*) AS count_dumplicate_job
+FROM job_listings 
+GROUP BY company_id,title,description)
+SELECT 
+SUM(CASE
+WHEN count_dumplicate_job >= 2 THEN 1 ELSE 0
+END) AS duplicate_companies
+FROM no_of_Dup_job
+EX11
+WITH 
+tb1 AS 
+(SELECT a.name AS results  
+FROM Users AS a
+JOIN MovieRating AS b
+ON a.user_id = b.user_id
+GROUP BY a.name
+ORDER BY COUNT (rating) DESC, results
+LIMIT 1),
+tb2 AS     
+(SELECT 
+b.title
+FROM MovieRating AS a
+JOIN Movies AS b
+ON a.movie_id=b.movie_id      
+WHERE EXTRACT (YEAR FROM created_at) =2020 AND EXTRACT (MONTH FROM created_at) =2
+GROUP BY b.title
+ORDER BY AVG (rating) DESC ,b.title
+LIMIT 1)
+SELECT * FROM tb1
+UNION ALL
+SELECT * FROM tb2 
+EX12
+WITH 
+NUM_OF_YOUR_FRIEND_REQUEST_ACCEPTED_BY_PEOPLE AS
+(SELECT requester_id,
+COUNT (accepter_id) AS num 
+FROM RequestAccepted 
+GROUP BY requester_id),
+NUM_OF_YOU_ACCEPTED_FRIEND_REQUEST AS
+(SELECT accepter_id,
+COUNT(accepter_id) AS num
+FROM RequestAccepted 
+GROUP BY accepter_id),
+Request_id_user_has_friend AS
+(SELECT COALESCE (a.requester_id,accepter_id ) AS id,
+COALESCE(a.num,0) + COALESCE(b.num,0) AS num  
+FROM NUM_OF_YOUR_FRIEND_REQUEST_ACCEPTED_BY_PEOPLE AS a
+FULL JOIN NUM_OF_YOU_ACCEPTED_FRIEND_REQUEST AS b
+ON a.requester_id = b.accepter_id
+ORDER BY num),
+accepter_id_user_has_friend AS
+(SELECT 
+COALESCE (a.requester_id,accepter_id ) AS id,
+COALESCE(a.num,0) + COALESCE(b.num,0) AS num  
+FROM NUM_OF_YOUR_FRIEND_REQUEST_ACCEPTED_BY_PEOPLE AS a
+FULL JOIN NUM_OF_YOU_ACCEPTED_FRIEND_REQUEST AS b
+ON a.requester_id = b.accepter_id
+)
+SELECT * FROM accepter_id_user_has_friend
+UNION
+SELECT * FROM Request_id_user_has_friend
+ORDER BY num DESC
+LIMIT 1 
 
 
  
