@@ -43,3 +43,20 @@ COUNT(a.product_id) AS purchase_count
 FROM a
 WHERE a.rank = 1
 GROUP BY a.transaction_date,a.user_id
+EX5
+WITH 
+a AS
+(SELECT *,
+Lag(tweet_count) OVER (PARTITION BY user_id ORDER BY tweet_date) AS tc2,
+Lag(tweet_count,2) OVER (PARTITION BY user_id ORDER BY tweet_date) AS tc3
+FROM tweets
+ORDER BY user_id,tweet_date)
+SELECT user_id,tweet_date,
+ROUND(CAST((a.tweet_count+COALESCE(a.tc2,0)+COALESCE(a.tc3,0)) AS DECIMAL (10,2))/
+(CASE
+WHEN a.tc2 IS NULL AND a.tc3 IS NULL THEN 1.00
+WHEN a.tc3 IS NULL THEN 2.00
+ELSE 3.00 END)
+,2) AS rolling_avg_3d
+FROM a 
+EX6
