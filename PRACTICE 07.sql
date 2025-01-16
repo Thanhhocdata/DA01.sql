@@ -60,3 +60,28 @@ ELSE 3.00 END)
 ,2) AS rolling_avg_3d
 FROM a 
 EX6
+WITH a AS
+(SELECT 
+transaction_id,merchant_id,credit_card_id,amount,transaction_timestamp,
+EXTRACT (HOUR FROM transaction_timestamp)*60+EXTRACT (MINUTE FROM transaction_timestamp) AS TIME_MINUTE,
+LAG(EXTRACT (HOUR FROM transaction_timestamp)*60+EXTRACT (MINUTE FROM transaction_timestamp)) OVER (PARTITION BY merchant_id,credit_card_id,amount ORDER BY transaction_timestamp) AS PREVIOUS_TIME_MINUTE
+FROM transactions)
+SELECT COUNT(*) AS payment_count
+FROM a
+WHERE (TIME_MINUTE - PREVIOUS_TIME_MINUTE) <=10
+EX7
+WITH a AS
+(SELECT 
+category,product,
+SUM(spend) OVER (PARTITION BY product) AS total_spend
+FROM product_spend
+WHERE EXTRACT(YEAR FROM transaction_date) =2022),
+b AS
+(SELECT DISTINCT*,
+DENSE_RANK () OVER (PARTITION BY a.category ORDER BY a.total_spend DESC) AS rank
+FROM a
+)
+SELECT b.category,b.product,b.total_spend 
+FROM b
+WHERE b.rank <= 2
+ORDER BY category,total_spend DESC
