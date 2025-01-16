@@ -32,3 +32,14 @@ ORDER BY user_id,transaction_date)
 SELECT a.user_id,a.spend,a.transaction_date
 FROM a
 WHERE rank =3
+EX4
+WITH a
+AS(SELECT *,
+RANK () OVER (PARTITION BY user_id ORDER BY transaction_date DESC)
+FROM user_transactions
+ORDER BY user_id)
+SELECT a.transaction_date,a.user_id,
+COUNT(a.product_id) AS purchase_count
+FROM a
+WHERE a.rank = 1
+GROUP BY a.transaction_date,a.user_id
