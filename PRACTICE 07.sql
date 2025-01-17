@@ -85,3 +85,29 @@ SELECT b.category,b.product,b.total_spend
 FROM b
 WHERE b.rank <= 2
 ORDER BY category,total_spend DESC
+EX8
+--top những bài hát xuất hiện nhiều nhất
+WITH Top_10_appear  AS
+(SELECT song_id,
+COUNT(song_id) AS num_appear
+FROM global_song_rank
+WHERE rank <= 10
+GROUP BY song_id
+ORDER BY num_appear),
+num_artist_appear_in_top_10 AS
+(SELECT artists.artist_name,
+SUM(num_appear) AS Total_num_appear
+FROM Top_10_appear
+JOIN songs 
+ON songs.song_id = Top_10_appear.song_id
+JOIN artists 
+ON artists.artist_id=songs.artist_id
+GROUP BY artists.artist_name
+ORDER BY total_num_appear DESC),
+Output AS
+(SELECT *, 
+DENSE_RANK() OVER (ORDER BY total_num_appear DESC) AS rank
+FROM num_artist_appear_in_top_10)
+SELECT Output.artist_name, rank 
+FROM Output
+WHERE rank <=5
