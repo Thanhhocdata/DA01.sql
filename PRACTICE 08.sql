@@ -73,3 +73,32 @@ select c.visited_on,
 cumulative_total_amount -COALESCE(pre_7_cumulative_total_amount,0) AS amount,
 ROUND((cumulative_total_amount -COALESCE(pre_7_cumulative_total_amount,0))/7.00,2) AS average_amount 
 From c
+EX5
+--Tìm tiv_2015 giống với người khác
+WITH a AS
+(SELECT pid,tiv_2016 
+FROM Insurance
+WHERE Tiv_2015 IN 
+(SELECT tiv_2015
+FROM Insurance
+GROUP BY tiv_2015 
+HAVING COUNT (tiv_2015) >1)),
+--TÌM LAT_LON unique
+b AS
+(SELECT pid,         
+CONCAT(lat, ', ', lon)  as latlon
+FROM Insurance),
+c AS
+(SELECT b.pid 
+FROM b
+WHERE latlon IN 
+(SELECT latlon 
+FROM b
+GROUP BY latlon 
+HAVING COUNT (latlon) =1))
+SELECT
+ROUND(CAST(SUM(a.tiv_2016) AS DECIMAL(10,2)),2) AS tiv_2016
+FROM a
+JOIN c
+ON a.pid =c.pid
+EX6
