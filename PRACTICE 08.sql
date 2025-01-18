@@ -46,4 +46,30 @@ COALESCE(a.student,b.student) AS student
 FROM b
 LEFT JOIN Seat AS a
 ON a.id=b.change_seat 
-
+EX4
+-- TÌM visited_on thỏa mãn với MA7
+WITH a AS
+(SELECT visited_on,
+SUM(amount) AS new_amount,
+RANK() OVER (ORDER BY visited_on ) AS rank
+FROM Customer
+GROUP BY visited_on
+ORDER BY visited_on),
+d AS
+(SELECT visited_on 
+ From a
+ WHERE rank -7 >=0),
+-- Tìm amount 
+b AS
+(SELECT *,
+SUM(new_amount) OVER (ORDER BY visited_on ) AS Cumulative_total_amount
+FROM a),
+c AS
+(SELECT b.visited_on , 
+b.cumulative_total_amount,
+LAG(cumulative_total_amount,7) OVER (ORDER BY visited_on) AS pre_7_cumulative_total_amount
+FROM b)
+select c.visited_on,
+cumulative_total_amount -COALESCE(pre_7_cumulative_total_amount,0) AS amount,
+ROUND((cumulative_total_amount -COALESCE(pre_7_cumulative_total_amount,0))/7.00,2) AS average_amount 
+From c
