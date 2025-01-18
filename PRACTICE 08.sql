@@ -102,3 +102,16 @@ FROM a
 JOIN c
 ON a.pid =c.pid
 EX6
+WITH cte1 AS
+(SELECT b.name AS Department, a.name AS Employee, a.salary AS Salary 
+FROM Employee AS a
+JOIN Department AS b
+ON a.departmentId =b.id),
+cte2 AS
+(SELECT *,
+DENSE_RANK() OVER (PARTITION BY Department ORDER BY SALARY DESC,Department) AS rank
+FROM cte1)
+SELECT Department,Employee,Salary 
+FROM cte2
+WHERE rank <=3
+EX7
