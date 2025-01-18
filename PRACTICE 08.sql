@@ -115,3 +115,11 @@ SELECT Department,Employee,Salary
 FROM cte2
 WHERE rank <=3
 EX7
+WITH cte1 AS
+(SELECT *,
+SUM(weight ) OVER (ORDER BY turn) AS Total_Weight
+FROM Queue)
+SELECT person_name 
+FROM cte1
+WHERE turn = (select MAX(turn) from cte1 where total_weight <=1000)
+EX8
