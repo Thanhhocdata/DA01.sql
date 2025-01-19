@@ -123,3 +123,28 @@ SELECT person_name
 FROM cte1
 WHERE turn = (select MAX(turn) from cte1 where total_weight <=1000)
 EX8
+-- NHỮNG PRODUCT_id PRICE GẦN NHẤT THAY ĐỔI MÀ KHÔNG PHẢI NGÀY 2019-08-16
+WITH a AS 
+(SELECT *,
+RANK () OVER (PARTITION BY product_id  ORDER BY change_date DESC) FROM Products AS rank
+WHERE change_date < '2019-08-16' and product_id NOT IN (SELECT  product_id FROM Products WHERE change_date ='2019-08-16')),
+b AS
+(SELECT product_id, new_price FROM a  
+WHERE rank =1),
+-- NHỮNG PRODUCT_id PRICE  THAY ĐỔI VÀO NGÀY 2019-08-16
+c AS 
+(SELECT product_id, new_price FROM Products WHERE change_date ='2019-08-16'),
+d as
+(SELECT DISTINCT product_id FROM Products ),
+e AS
+(SELECT product_id, new_price
+FROM b 
+UNION 
+SELECT product_id, new_price
+FROM c)
+SELECT d.product_id,
+COALESCE (e.new_price,10) AS price 
+FROM d
+FULL JOIN e
+ON d.product_id=e.product_id
+
