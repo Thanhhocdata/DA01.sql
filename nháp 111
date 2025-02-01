@@ -1,0 +1,23 @@
+WITH cte1 AS
+(SELECT a.order_id,b.product_id,b.sale_price,c.cost,
+EXTRACT (YEAR FROM a.created_at )||'-'||EXTRACT (MONTH FROM a.created_at) AS Month,
+EXTRACT (YEAR FROM a.created_at) AS Year,
+c.category,
+FROM bigquery-public-data.thelook_ecommerce.orders AS a
+LEFT JOIN bigquery-public-data.thelook_ecommerce.order_items AS b
+ON a.order_id =b.order_id
+LEFT JOIN bigquery-public-data.thelook_ecommerce.products AS c
+ON b.product_id = c.id
+),
+cte2 AS (
+SELECT Month,Year,category,
+SUM (sale_price) AS TPV,
+count (order_id) AS TPO
+FROM cte1
+group by Month,Year,category
+)
+SELECT *,
+rank () over (order by category, Month)
+ FROM cte2
+ order by category,month 
+
