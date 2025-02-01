@@ -87,3 +87,54 @@ GROUP BY dates,product_category)
 SELECT * FROM cte1
 WHERE dates BETWEEN '2022-01-15' AND '2022-4-15' 
 order by dates
+6. TABLE THEO YÊU CẦU
+
+WITH cte1 AS
+(SELECT a.order_id,b.product_id,b.sale_price,c.cost,a.created_at,
+EXTRACT (YEAR FROM a.created_at )||'-'||EXTRACT (MONTH FROM a.created_at) AS Month,
+EXTRACT (YEAR FROM a.created_at) AS Year,
+EXTRACT (MONTH FROM a.created_at) AS order_fix_month,
+c.category,
+FROM bigquery-public-data.thelook_ecommerce.orders AS a
+LEFT JOIN bigquery-public-data.thelook_ecommerce.order_items AS b
+ON a.order_id =b.order_id
+LEFT JOIN bigquery-public-data.thelook_ecommerce.products AS c
+ON b.product_id = c.id
+),
+cte2 AS (
+SELECT Month,Year,order_fix_month,category,
+SUM (sale_price) AS TPV,
+SUM(cost) AS Total_cost,
+count (order_id) AS TPO,
+FROM cte1
+group by Month,Year,order_fix_month,category
+order by year,order_fix_month
+),
+cte3 AS
+(select *,
+rank () over (order by category,year,order_fix_month) AS r1
+ from cte2
+),
+cte4 AS
+(
+SELECT * ,
+LAG (order_fix_month) OVER (ORDER BY category,year,order_fix_month) AS PRE_MONTH,
+LAG (TPV) OVER (ORDER BY category,year,order_fix_month) AS PRE_TPV,
+LAG (TPO) OVER (ORDER BY category,year,order_fix_month) AS PRE_TPO
+FROM cte3
+ORDER BY r1),
+FINAL AS
+(select Month,Year,category,TPV,TPO,
+ROUND((CASE
+WHEN order_fix_month-PRE_MONTH =1 THEN (TPV-PRE_TPV)*100/PRE_TPV 
+ELSE 0 END),2)||'%' AS Revenue_growth,
+ROUND((CASE
+WHEN order_fix_month-PRE_MONTH =1 THEN (TPO-PRE_TPO)*100/PRE_TPO
+ELSE 0 END),2)||'%' AS Order_growth,
+Total_cost,
+TPV-Total_cost AS Total_profit,
+ROUND((TPV-Total_cost)/Total_cost,2) ||'%' AS Profit_to_cost_ratio
+ FROM cte4)
+ SELECT
+ *
+ FROM FINAL
