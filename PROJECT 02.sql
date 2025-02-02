@@ -1,6 +1,6 @@
 1. Số lượng đơn hàng và số lượng khách hàng mỗi tháng ( Từ 1/2019-4/2022)
 SELECT 
-EXTRACT (YEAR FROM created_at)||'-'||EXTRACT (MONTH FROM created_at) AS month_year,
+FORMAT_DATE('%Y-%m', created_at) AS month_year,
 COUNT (order_id) AS total_order,
 COUNT(DISTINCT user_id) AS total_user
  FROM bigquery-public-data.thelook_ecommerce.orders
@@ -10,7 +10,7 @@ COUNT(DISTINCT user_id) AS total_user
 2.  Giá trị đơn hàng trung bình (AOV) và số lượng khách hàng mỗi tháng
 WITH cte1 as
 (SELECT 
-EXTRACT (YEAR FROM created_at)||'-'||EXTRACT (MONTH FROM created_at) AS month_year,
+FORMAT_DATE('%Y-%m', created_at) AS month_year,
 COUNT(DISTINCT user_id) AS distinct_users
  FROM bigquery-public-data.thelook_ecommerce.orders
  GROUP BY month_year
@@ -18,7 +18,7 @@ COUNT(DISTINCT user_id) AS distinct_users
  ORDER BY month_year),
  cte2 AS 
  (SELECT 
- EXTRACT (YEAR FROM created_at)||'-'||EXTRACT (MONTH FROM created_at) AS month_year,
+ FORMAT_DATE('%Y-%m', created_at) AS month_year,
  SUM (sale_price)/COUNT(order_id) AS average_order_value
  FROM bigquery-public-data.thelook_ecommerce.order_items
  GROUP BY (month_year))
@@ -48,14 +48,14 @@ DENSE_RANK  () OVER (PARTITION BY gender ORDER BY age DESC) AS old_rank
  ELSE NULL END)  is not null AND month_year BETWEEN '2019-01' AND '2022-04'
 ) 
   SELECT COUNT(*) FROM count_table
-TRẺ NHẤT THEO MAN LÀ 12 TUỔI, SỐ LƯỢNG 443
-TRẺ NHẤT THEO FEMALE LÀ 12 TUỔI, SỐ LƯỢNG 401
-GIÀ NHẤT THEO THEO MAN LÀ 70 TUỔI, SỐ LƯỢNG 410
-GIÀ NHẤT THEO THEO  female LÀ 70 TUỔI, SỐ LƯỢNG 391
+TRẺ NHẤT THEO MAN LÀ 12 TUỔI, SỐ LƯỢNG 480
+TRẺ NHẤT THEO FEMALE LÀ 12 TUỔI, SỐ LƯỢNG 450
+GIÀ NHẤT THEO THEO MAN LÀ 70 TUỔI, SỐ LƯỢNG 
+GIÀ NHẤT THEO THEO  female LÀ 70 TUỔI, SỐ LƯỢNG 459
 4.Top 5 sản phẩm mỗi tháng.
 WITH cte1 AS
 (select 
-EXTRACT (YEAR FROM created_at)||'-'||EXTRACT (MONTH FROM created_at) AS month_year,
+FORMAT_DATE('%Y-%m', created_at) AS month_year,
 product_id,
 product_name,
 product_retail_price as sales,
@@ -78,7 +78,7 @@ SUM (product_retail_price)  as revenue
 5. Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
 WITH cte1  as 
 (select 
-EXTRACT (YEAR FROM created_at)||'-'||EXTRACT (MONTH FROM created_at)||'-'||EXTRACT (DAY FROM created_at) AS dates,
+FORMAT_DATE('%Y-%m', created_at) AS dates,
 product_category, 
 SUM(product_retail_price- cost) AS revenue
 FROM 
@@ -88,7 +88,6 @@ SELECT * FROM cte1
 WHERE dates BETWEEN '2022-01-15' AND '2022-4-15' 
 order by dates
 6. TABLE THEO YÊU CẦU
-
 WITH cte1 AS
 (SELECT a.order_id,b.product_id,b.sale_price,c.cost,a.created_at,
 EXTRACT (YEAR FROM a.created_at )||'-'||EXTRACT (MONTH FROM a.created_at) AS Month,
