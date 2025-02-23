@@ -1,6 +1,6 @@
 1. Số lượng đơn hàng và số lượng khách hàng mỗi tháng ( Từ 1/2019-4/2022)
 SELECT 
-FORMAT_DATE('%Y-%m', created_at) AS month_year,
+FORMAT_DATE('%Y-%m', delivered_at) AS month_year,
 COUNT (order_id) AS total_order,
 COUNT(DISTINCT user_id) AS total_user
  FROM bigquery-public-data.thelook_ecommerce.orders
